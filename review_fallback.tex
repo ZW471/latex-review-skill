@@ -1,0 +1,29 @@
+% Canonical copy of the host-side fallback. COPY THIS FILE into the host
+% paper's repo root (next to main.tex) — it cannot be loaded from here,
+% because it is needed exactly when this submodule is NOT checked out
+% (e.g. on Overleaf, whose git bridge does not fetch submodule contents,
+% or after a plain "git clone" without --recurse-submodules).
+%
+% The host's main.tex loads comments.tex when present and the root copy of
+% this file otherwise:
+%   \IfFileExists{review/comments.tex}{\input{review/comments}}{\input{review_fallback}}
+%
+% These no-ops reproduce the \ReviewCommentsOff semantics exactly: typed
+% comments vanish, \chl prints its span untouched, \csub falls back to the
+% ORIGINAL text, \capplied keeps the NEW text. The paper therefore builds
+% identically to a hidden-comments build even without the submodule.
+%
+% When a command is added to comments.tex, add its no-op twin here AND in
+% every host repo's root copy — the two files must stay in sync.
+\newcommand{\ReviewCommentsOff}{}
+\newcommand{\ReviewCommentsOn}{}
+\newcommand{\cerror}[2][]{}
+\newcommand{\cwarn}[2][]{}
+\newcommand{\csugg}[2][]{}
+\newcommand{\cquest}[2][]{}
+\newcommand{\cexp}[2][]{}
+\newcommand{\cnote}[2][]{}
+\newcommand{\cans}[1]{}
+\newcommand{\chl}[2]{#1}
+\newcommand{\csub}[3][]{#2}
+\newcommand{\capplied}[3][]{#3}

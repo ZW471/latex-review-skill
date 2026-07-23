@@ -6,6 +6,9 @@ to be included in a paper repo as a git submodule (conventionally at
 `review/`):
 
 - `comments.tex` — the implementation (loaded from the paper's `main.tex`).
+- `review_fallback.tex` — canonical copy of the host-side fallback; **copy it
+  into the host repo root** (see Quick start — it cannot be loaded from the
+  submodule, because it is needed exactly when the submodule is absent).
 - `README.md` — this manual.
 - `demo.tex` — one example of every command; temporarily `\input{review/demo}`
   in `main.tex` to preview the rendering.
@@ -19,13 +22,15 @@ In the host paper's `main.tex` preamble:
 % \ReviewCommentsOff
 ```
 
-with a `review_fallback.tex` in the host repo defining no-op versions of every
-command (the host paper keeps one; it reproduces `\ReviewCommentsOff`
-semantics). The guard matters because submodule contents are absent in plain
-clones and on Overleaf, whose git bridge does not fetch submodules — with the
-fallback, such checkouts still build the clean paper. After cloning the host
-repo, populate this folder with `git submodule update --init`. Requires
-`xcolor`, `ulem` (`[normalem]`), and `etoolbox` in the host preamble.
+where the host repo's root `review_fallback.tex` is a copy of this repo's
+`review_fallback.tex` (no-op versions of every command, reproducing
+`\ReviewCommentsOff` semantics). The guard matters because submodule contents
+are absent in plain clones and on Overleaf, whose git bridge does not fetch
+submodules — with the fallback, such checkouts still build the clean paper.
+Keep the host copy in sync with the canonical one whenever `comments.tex`
+gains a command. After cloning the host repo, populate this folder with
+`git submodule update --init`. Requires `xcolor`, `ulem` (`[normalem]`), and
+`etoolbox` in the host preamble.
 
 - **Hide every comment** (render the clean paper): uncomment `\ReviewCommentsOff`.
   That single command removes all review markup visually — typed comments
