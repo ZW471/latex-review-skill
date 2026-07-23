@@ -142,3 +142,7 @@ them together with the comment.
 - These comments are for the *review workflow*. The pre-existing `\TODO{...}`
   marker stays reserved for author-side missing content — don't convert TODOs
   into review comments or vice versa.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
