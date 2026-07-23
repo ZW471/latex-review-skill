@@ -1,0 +1,29 @@
+% Demo of every review-comment command (review/README.md is the manual).
+% Preview: temporarily add \input{review/demo} before \end{document} in
+% main.tex and compile. This file is NOT part of the normal build.
+\clearpage
+\section*{Review-comment system demo}
+
+Typed comments, each with its own color and running id:
+\cerror[demo-num]{Table 2 reports $0.7609$ but the text says $0.76$; make them consistent.}
+\cwarn{``significantly outperforms'' — no significance test is reported; soften or add one.}
+\csugg{Consider moving the notation table before the algorithm box.}
+\cquest[demo-data]{Which trajectory set was used for the frozen baseline?
+  \cans{The same $5\times1024$ saved trajectories as the final design.}}
+\cexp{Ablate lineage depth (1 vs.\ 3 vs.\ unbounded); expected benefit: isolates the
+  contribution of inheritance; cost: ${\sim}12$ GPU-hours on the Quant case study.}
+\cnote{Checked: all MLE-bench numbers match \texttt{raw\_assets/mle}; no action needed.}
+
+An anchored comment: the cycle \chl{turns distributed artifacts into research
+state}{\csugg{say \emph{how} — one clause naming the selection mechanism.}} and
+the sentence continues normally.
+
+A proposed rewrite (not yet accepted; hiding comments restores the original):
+the agent \csub[demo-rw]{leverages a plurality of heterogeneous artifacts}{uses
+many kinds of artifacts} across generations.
+
+An applied rewrite (accepted; hiding comments keeps the new text): the system
+\capplied{utilizes}{uses} selective evidence inheritance.
+
+With \verb|\ReviewCommentsOff| active, this page collapses to the plain
+sentences with original wording, no colors, and no paragraph-break changes.

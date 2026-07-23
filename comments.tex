@@ -1,0 +1,159 @@
+% ======================================================================
+% review/comments.tex — inline review-comment system for agent-assisted
+% paper polishing. Full manual: review/README.md
+%
+% Loaded from main.tex via \input{review/comments}.
+%
+% ONE-COMMAND TOGGLE:
+%   \ReviewCommentsOff   -> hides ALL review markup; the paper renders
+%                           exactly as if no comments existed. Proposed
+%                           rewrites (\csub) fall back to the ORIGINAL
+%                           text; applied rewrites (\capplied) fall back
+%                           to the NEW text.
+%   \ReviewCommentsOn    -> shows them again (default).
+% Put the toggle in main.tex right after the \input line.
+%
+% COMMANDS (all take an optional [slug] — a short stable id like
+% [rocket-mass] — so a comment can be referred to even after numbers
+% shift; numbering is automatic in document order):
+%   \cerror[slug]{body}    [E1 . ERROR]      red     objectively wrong
+%   \cwarn[slug]{body}     [W1 . WARN]       orange  risky / likely objection
+%   \csugg[slug]{body}     [S1 . SUGGEST]    blue    optional improvement
+%   \cquest[slug]{body}    [Q1 . QUESTION]   purple  needs author input
+%   \cexp[slug]{body}      [X1 . EXPERIMENT] teal    proposed extra experiment
+%   \cnote[slug]{body}     [N1 . NOTE]       gray    context, no action needed
+%   \cans{body}            "-> AUTHOR:"      green   author's reply, written
+%                                                    INSIDE a comment's braces
+%   \chl{span}{comment}    wavy-underlines the exact span being discussed,
+%                          then prints the comment; hidden -> plain span
+%   \csub[slug]{old}{new}  proposed rewrite: old struck out, new in blue;
+%                          hidden -> old (proposal NOT yet accepted)
+%   \capplied[slug]{old}{new}  applied rewrite kept visible for audit:
+%                          old struck out, new as normal text;
+%                          hidden -> new (change IS the paper now)
+%
+% Bodies may contain \par (multi-paragraph comments are fine) and normal
+% LaTeX. Do NOT place review commands inside \section titles, captions,
+% or math. Do NOT surround an inline comment with blank lines unless the
+% original text already had a paragraph break there.
+% ======================================================================
+
+\makeatletter
+
+% ---- visibility switch ------------------------------------------------
+\newif\ifrc@show
+\rc@showtrue
+\newcommand{\ReviewCommentsOff}{\rc@showfalse}
+\newcommand{\ReviewCommentsOn}{\rc@showtrue}
+
+% ---- palette (dark enough to read at \footnotesize, distinct in print)
+\definecolor{rcErrorCol}{HTML}{C62828}   % red     — error
+\definecolor{rcWarnCol}{HTML}{B45309}    % orange  — warning
+\definecolor{rcSuggCol}{HTML}{1D4ED8}    % blue    — suggestion / proposed text
+\definecolor{rcQuestCol}{HTML}{7B1FA2}   % purple  — question
+\definecolor{rcExpCol}{HTML}{0F766E}     % teal    — experiment proposal
+\definecolor{rcNoteCol}{HTML}{57606A}    % gray    — note
+\definecolor{rcAnsCol}{HTML}{15803D}     % green   — author answer / applied
+\definecolor{rcDelCol}{HTML}{C62828}     % red     — struck-out old text
+\definecolor{rcMarkCol}{HTML}{D97706}    % amber   — wavy anchor underline
+
+% ---- counters (per type, so ids read E1, E2, W1, Q1, ...) -------------
+\newcounter{rc@error}
+\newcounter{rc@warn}
+\newcounter{rc@sugg}
+\newcounter{rc@quest}
+\newcounter{rc@exp}
+\newcounter{rc@note}
+\newcounter{rc@sub}
+\newcounter{rc@app}
+
+% ---- shared renderer --------------------------------------------------
+% \rc@comment{color}{counter}{letter}{LABEL}{slug}{body}
+\DeclareRobustCommand{\rc@comment}[6]{%
+  \ifrc@show
+    \stepcounter{#2}%
+    \begingroup
+      \sffamily\footnotesize\color{#1}%
+      \textbf{[#3\arabic{#2}\,\textperiodcentered\,#4%
+        \ifblank{#5}{}{\,\textperiodcentered\,#5}]} #6%
+    \endgroup
+  \fi
+}
+
+% ---- typed comments ---------------------------------------------------
+\DeclareRobustCommand{\cerror}[2][]{\rc@comment{rcErrorCol}{rc@error}{E}{ERROR}{#1}{#2}}
+\DeclareRobustCommand{\cwarn}[2][]{\rc@comment{rcWarnCol}{rc@warn}{W}{WARN}{#1}{#2}}
+\DeclareRobustCommand{\csugg}[2][]{\rc@comment{rcSuggCol}{rc@sugg}{S}{SUGGEST}{#1}{#2}}
+\DeclareRobustCommand{\cquest}[2][]{\rc@comment{rcQuestCol}{rc@quest}{Q}{QUESTION}{#1}{#2}}
+\DeclareRobustCommand{\cexp}[2][]{\rc@comment{rcExpCol}{rc@exp}{X}{EXPERIMENT}{#1}{#2}}
+\DeclareRobustCommand{\cnote}[2][]{\rc@comment{rcNoteCol}{rc@note}{N}{NOTE}{#1}{#2}}
+
+% ---- author answer (used inside any comment's braces) -----------------
+% Rendered in green so replies stand out from the surrounding comment.
+% It only ever appears inside a comment body, so it vanishes together
+% with the comment when \ReviewCommentsOff is active.
+\DeclareRobustCommand{\cans}[1]{%
+  \begingroup
+    \sffamily\footnotesize\color{rcAnsCol}%
+    \textbf{\ $\hookrightarrow$~AUTHOR:} #1%
+  \endgroup
+}
+
+% ---- span anchor ------------------------------------------------------
+% \chl{exact span of paper text}{comment about that span}
+% Visible: span keeps normal ink but gets an amber wavy underline (the
+% reviewer's squiggle), immediately followed by the comment.
+% Hidden: the span prints untouched; the comment is discarded.
+% Colored wave without ulem's color-leakage quirk: color only the repeated
+% squiggle glyph inside \markoverwith (same construction ulem uses for
+% \uwave), so the spanned text keeps its own ink.
+\DeclareRobustCommand{\rc@wave}[1]{%
+  \bgroup
+  \markoverwith{\lower3.5\p@\hbox{\textcolor{rcMarkCol}{\sixly\char58}}}%
+  \ULon{#1}% \ULon closes the \bgroup itself
+}
+\DeclareRobustCommand{\chl}[2]{%
+  \ifrc@show
+    \rc@wave{#1}\,#2%
+  \else
+    #1%
+  \fi
+}
+
+% ---- proposed rewrite -------------------------------------------------
+% \csub[slug]{old}{new}: a PROPOSAL. Old text struck out in red, new text
+% in blue. Hidden mode shows the ORIGINAL text, because the proposal has
+% not been accepted — hiding comments must recover the clean paper.
+\DeclareRobustCommand{\csub}[3][]{%
+  \ifrc@show
+    \stepcounter{rc@sub}%
+    {\sffamily\footnotesize\color{rcSuggCol}%
+      \textbf{[R\arabic{rc@sub}\,\textperiodcentered\,REWRITE%
+        \ifblank{#1}{}{\,\textperiodcentered\,#1}]}\,}%
+    {\color{rcDelCol}\sout{#2}}%
+    {\sffamily\footnotesize\color{rcSuggCol}\,$\to$\,}%
+    {\color{rcSuggCol}#3}%
+  \else
+    #2%
+  \fi
+}
+
+% ---- applied rewrite (visible audit trail) ----------------------------
+% \capplied[slug]{old}{new}: the change has been ACCEPTED and applied;
+% the new text is real paper text (normal ink), the old text stays
+% visible struck-out for auditing. Hidden mode shows only the NEW text.
+\DeclareRobustCommand{\capplied}[3][]{%
+  \ifrc@show
+    \stepcounter{rc@app}%
+    {\sffamily\footnotesize\color{rcAnsCol}%
+      \textbf{[A\arabic{rc@app}\,\textperiodcentered\,APPLIED%
+        \ifblank{#1}{}{\,\textperiodcentered\,#1}]}\,}%
+    {\color{rcDelCol}\sout{#2}}%
+    {\sffamily\footnotesize\color{rcAnsCol}\,$\to$\,}%
+    #3%
+  \else
+    #3%
+  \fi
+}
+
+\makeatother
