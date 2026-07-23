@@ -1,22 +1,31 @@
 # Review-comment system
 
-Inline, colored review annotations for the paper, designed for an
-agent-annotates → author-answers → agent-applies workflow. Everything lives in
-this folder:
+Inline, colored review annotations for a LaTeX paper, designed for an
+agent-annotates → author-answers → agent-applies workflow. This repo is meant
+to be included in a paper repo as a git submodule (conventionally at
+`review/`):
 
-- `comments.tex` — the implementation (loaded from `main.tex`).
+- `comments.tex` — the implementation (loaded from the paper's `main.tex`).
 - `README.md` — this manual.
 - `demo.tex` — one example of every command; temporarily `\input{review/demo}`
   in `main.tex` to preview the rendering.
 
 ## Quick start
 
-`main.tex` already contains:
+In the host paper's `main.tex` preamble:
 
 ```latex
-\input{review/comments}
+\IfFileExists{review/comments.tex}{\input{review/comments}}{\input{review_fallback}}
 % \ReviewCommentsOff
 ```
+
+with a `review_fallback.tex` in the host repo defining no-op versions of every
+command (the host paper keeps one; it reproduces `\ReviewCommentsOff`
+semantics). The guard matters because submodule contents are absent in plain
+clones and on Overleaf, whose git bridge does not fetch submodules — with the
+fallback, such checkouts still build the clean paper. After cloning the host
+repo, populate this folder with `git submodule update --init`. Requires
+`xcolor`, `ulem` (`[normalem]`), and `etoolbox` in the host preamble.
 
 - **Hide every comment** (render the clean paper): uncomment `\ReviewCommentsOff`.
   That single command removes all review markup visually — typed comments
