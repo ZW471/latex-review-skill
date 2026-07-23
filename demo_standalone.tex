@@ -1,0 +1,19 @@
+% Standalone driver for demo.tex — regenerates the README screenshots without
+% a host paper. From this folder:
+%   pdflatex demo_standalone
+%   pdflatex -jobname=demo_hidden "\def\HideReviewComments{1}\input{demo_standalone}"
+% then crop and rasterize (see README "What it looks like").
+\documentclass[12pt]{article}
+\usepackage[letterpaper,margin=2.3cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[normalem]{ulem}
+\usepackage{etoolbox}
+\input{comments}
+\ifdefined\HideReviewComments\ReviewCommentsOff\fi
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex}
+\begin{document}
+\input{demo}
+\end{document}

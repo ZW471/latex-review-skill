@@ -1,0 +1,6 @@
+*.aux
+*.log
+*.out
+*.synctex.gz
+demo_standalone.pdf
+demo_hidden.pdf

@@ -12,6 +12,33 @@ to be included in a paper repo as a git submodule (conventionally at
 - `README.md` — this manual.
 - `demo.tex` — one example of every command; temporarily `\input{review/demo}`
   in `main.tex` to preview the rendering.
+- `demo_standalone.tex` — minimal driver that compiles `demo.tex` without a
+  host paper; used to regenerate the screenshots below.
+- `assets/` — the rendered screenshots embedded below.
+
+## What it looks like
+
+`demo.tex` compiled with comments visible — every command in action:
+
+![Demo with comments visible](assets/demo-visible.png)
+
+The **same source** after adding the single `\ReviewCommentsOff` toggle —
+typed comments vanish, the anchored span prints untouched, the unaccepted
+`\csub` proposal falls back to the original wording, and the accepted
+`\capplied` rewrite keeps the new wording:
+
+![Demo with comments hidden](assets/demo-hidden.png)
+
+To regenerate the screenshots (needs `pdfcrop` from TeX Live and `pdftoppm`
+from poppler):
+
+```bash
+pdflatex demo_standalone
+pdflatex -jobname=demo_hidden "\def\HideReviewComments{1}\input{demo_standalone}"
+pdfcrop --margins 12 demo_standalone.pdf vis.pdf && pdftoppm -png -r 160 -singlefile vis.pdf assets/demo-visible
+pdfcrop --margins 12 demo_hidden.pdf hid.pdf && pdftoppm -png -r 160 -singlefile hid.pdf assets/demo-hidden
+rm -f vis.pdf hid.pdf
+```
 
 ## Quick start
 
