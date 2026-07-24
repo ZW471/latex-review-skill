@@ -10,6 +10,8 @@ to be included in a paper repo as a git submodule (conventionally at
   into the host repo root** (see Quick start — it cannot be loaded from the
   submodule, because it is needed exactly when the submodule is absent).
 - `README.md` — this manual.
+- `MEMORY.md` — agent instructions for the git-ignored `memory/` folder that
+  records the author's review preferences across sessions.
 - `demo.tex` — one example of every command; temporarily `\input{review/demo}`
   in `main.tex` to preview the rendering.
 - `demo_standalone.tex` — minimal driver that compiles `demo.tex` without a
@@ -124,6 +126,16 @@ them together with the comment.
    `grep -rn '\\c\(error\|warn\|sugg\|quest\|exp\|note\|ans\|hl\|sub\|applied\)' sections/`
    must return nothing, and the paper must compile identically with and
    without `\ReviewCommentsOff`.
+
+## Reviewer memory (agents)
+
+Agents reviewing the paper or resolving comments must keep a persistent,
+**git-ignored** preference memory in `review/memory/`: read it before
+touching any comment, and record new durable author preferences (accept/
+decline patterns, style rulings, workflow tastes) as they surface — so the
+author never has to state the same preference twice. Full protocol in
+[MEMORY.md](MEMORY.md). The folder is ignored by this repo's `.gitignore`;
+never commit it.
 
 ## Placement rules (agents: follow these exactly)
 
