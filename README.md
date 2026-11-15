@@ -61,6 +61,13 @@ gains a command. After cloning the host repo, populate this folder with
 `git submodule update --init`. Requires `xcolor`, `ulem` (`[normalem]`), and
 `etoolbox` in the host preamble.
 
+**Seeing comments on Overleaf.** Because the git bridge does not fetch
+submodules, an Overleaf project built from a submodule setup always takes the
+fallback branch, so comments never show there. If co-authors read and answer
+comments on Overleaf, copy `comments.tex` into the host repo as a plain file
+(e.g. `review/comments.tex`, not a submodule) and keep it in sync with this
+repo by hand.
+
 - **Hide every comment** (render the clean paper): uncomment `\ReviewCommentsOff`.
   That single command removes all review markup visually — typed comments
   vanish, `\chl` spans print untouched, `\csub` proposals fall back to the
